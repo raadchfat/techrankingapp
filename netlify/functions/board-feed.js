@@ -34,18 +34,21 @@ exports.handler = async (event) => {
 
     const boards = {};
     for (const key of cfg.boards.order) {
-      const list = techs
-        .filter((t) => boardFor(t) === key)
-        .sort((a, b) => b.revenue - a.revenue)
-        .map((t, i) => ({ ...t, rank: i + 1 }));
       boards[key] = {
         title: cfg.boards.titles[key] || key,
         target: targetFor(key, range),
-        techs: list,
+        rankedBy: (cfg.rankBy || {})[key] || 'pctToGoal',
+        techs: techs.filter((t) => boardFor(t) === key),
       };
     }
 
     addForceShows(boards, range);
+
+    // Score and rank only after force-shows are in, so placeholder techs
+    // are ranked alongside everyone else instead of being appended last.
+    for (const key of Object.keys(boards)) {
+      boards[key].techs = scoreAndSort(boards[key].techs, boards[key].target, key);
+    }
 
     const payload = {
       generatedAt: new Date().toISOString(),
@@ -230,29 +233,69 @@ function addForceShows(boards, range) {
     if (!b) continue;
     if (b.techs.some((t) => t.name === name)) continue;
     const blank = normalizeRow({ Name: name });
-    b.techs.push({ ...blank, noActivity: true, rank: b.techs.length + 1 });
+    b.techs.push({ ...blank, noActivity: true });
   }
 }
 
 /* ---------------- targets ---------------- */
 
 /**
- * Prorated targets. A flat monthly goal makes every tile red for the first
- * two weeks of the month regardless of actual pace, which trains the team
- * to ignore the colors. This scales the goal to elapsed business days.
+ * Per-tech prorated targets.
+ *
+ * Each board carries one monthly revenue goal that applies to every tech on
+ * it. Prorating to elapsed business days stops the first two weeks of every
+ * month from being uniformly red, which is what trains a team to ignore the
+ * colors entirely.
+ *
+ * Note: because the goal is uniform within a board, ranking by percent-to-goal
+ * produces the same order as ranking by revenue. It changes what the number
+ * *means* (pace vs. raw dollars), not who sits where.
  */
 function targetFor(boardKey, range) {
   const t = (cfg.targets || {})[boardKey];
   if (!t) return null;
 
-  const monthly = t.monthlyRevenue || 0;
+  const monthly = t.perTechMonthlyRevenue || 0;
   if (!cfg.prorateTargets || range !== 'mtd') {
-    return { monthly, toDate: monthly, prorated: false };
+    return { perTechMonthly: monthly, perTechToDate: monthly, prorated: false };
   }
 
   const { elapsed, total } = businessDayProgress();
   const toDate = total > 0 ? Math.round((monthly * elapsed) / total) : monthly;
-  return { monthly, toDate, prorated: true, businessDaysElapsed: elapsed, businessDaysInMonth: total };
+  return {
+    perTechMonthly: monthly,
+    perTechToDate: toDate,
+    prorated: true,
+    businessDaysElapsed: elapsed,
+    businessDaysInMonth: total,
+  };
+}
+
+/** Attach percent-to-goal to each tech and sort by the board's chosen metric. */
+function scoreAndSort(techs, target, boardKey) {
+  const goal = target && target.perTechToDate ? target.perTechToDate : 0;
+
+  const scored = techs.map((t) => ({
+    ...t,
+    goalToDate: goal,
+    goalMonthly: target ? target.perTechMonthly : 0,
+    pctToGoal: goal > 0 ? t.revenue / goal : 0,
+    onTarget: goal > 0 ? t.revenue >= goal : false,
+  }));
+
+  const metric = (cfg.rankBy || {})[boardKey] || 'pctToGoal';
+  const key = {
+    pctToGoal: (t) => t.pctToGoal,
+    revenue: (t) => t.revenue,
+    jobAverage: (t) => t.jobAverage,
+    completedJobs: (t) => t.completedJobs,
+  }[metric] || ((t) => t.pctToGoal);
+
+  scored.sort((a, b) => key(b) - key(a));
+  scored.forEach((t, i) => {
+    t.rank = i + 1;
+  });
+  return scored;
 }
 
 function businessDayProgress() {
