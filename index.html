@@ -301,7 +301,7 @@ const FINE_PRINT = {
 /* LIVE FEED (optional): publish the "OD Board Feed" Google Sheet
    to the web as Entire Document → Microsoft Excel (.xlsx) and
    paste the link here. Leave "" for drag-and-drop only. */
-const FEED_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMSIWW2q5I7ALFzul4qXnWfEg9CkE1ZYyhgay4vXzjuG-cneNon7Urj7Z4P6BfHLX8Y2odJtxUizTS/pub?output=xlsx";
+const FEED_URL     = "/api/feed";   // ServiceTitan Reporting API (Netlify function)
 const FEED_MINUTES = 15;
 /* ================================================================ */
 
@@ -720,19 +720,74 @@ function handleFile(file){
   reader.readAsArrayBuffer(file);
 }
 
+/* Convert the /api/feed payload into the board's internal shape.
+   The board renders from { label, divisions: { service|sales|install: { Name: {...} } } },
+   so we translate rather than rewrite the renderer. */
+function adaptApiFeed(payload){
+  const divisions = { service:{}, sales:{}, install:{} };
+  const pct = v => (v == null ? 0 : v * 100);
+
+  for(const [key, board] of Object.entries(payload.boards || {})){
+    if(!divisions[key]) divisions[key] = {};
+    for(const t of board.techs || []){
+      divisions[key][t.name] = {
+        revenue:     t.revenue,
+        jobs:        t.completedJobs,
+        opps:        t.opportunity,
+        sales:       t.totalSales,
+        closeRate:   pct(t.conversionRate),   // Total Conversion Rate
+        estClose:    pct(t.closeRate),        // Close Rate (estimates)
+        leads:       t.leadGenOpportunity,
+        avgTicket:   t.jobAverage,
+        avgSale:     t.avgSale,
+        onTime:      pct(t.onTimePct),
+        dailyGoal:   t.dailyGoal,
+        // Billable Efficiency is capped at 100% for display. The raw values run
+        // well over 100 (large sewer jobs bill far more hours than they take),
+        // so the uncapped number is not meaningful as a tile. The cap is
+        // disclosed in FINE_PRINT. Raw value is kept below as effRaw.
+        eff:         t.billableEfficiency ? Math.min(100, pct(t.billableEfficiency)) : null,
+        effRaw:      t.billableEfficiency ? pct(t.billableEfficiency) : null,
+        pctToGoal:   t.pctToGoal,
+        goalToDate:  t.goalToDate,
+        onTarget:    t.onTarget,
+        sold:null, zeroTicket:null, hoursPerJob:null, callbacks:null, otWtd:null, otMtd:null
+      };
+    }
+  }
+
+  const days = (payload.boards.service && payload.boards.service.target
+             && payload.boards.service.target.businessDaysElapsed) || 0;
+
+  return {
+    label: monthLabel(payload) ,
+    weeks: days / 6,
+    days,
+    divisions
+  };
+}
+
+function monthLabel(payload){
+  const d = new Date(payload.generatedAt || Date.now());
+  const month = d.toLocaleString("en-US", { month:"short", timeZone:"America/Chicago" });
+  const day   = d.toLocaleString("en-US", { day:"numeric", timeZone:"America/Chicago" });
+  const year  = d.toLocaleString("en-US", { year:"numeric", timeZone:"America/Chicago" });
+  return month + " 1 \u2013 " + month + " " + day + ", " + year;
+}
+
 async function fetchFeed(){
   if(!FEED_URL) return;
   try{
     const url = FEED_URL + (FEED_URL.includes("?") ? "&" : "?") + "cb=" + Date.now();
     const res = await fetch(url);
     if(!res.ok) throw new Error(res.status);
-    const buf = await res.arrayBuffer();
-    const wb = XLSX.read(new Uint8Array(buf), {type:"array"});
-    applyData(parseWorkbook(wb), null);
-    $("uploadHint").textContent = "Live Feed · Updated " +
+    const payload = await res.json();
+    if(payload.error) throw new Error(payload.error);
+    applyData(adaptApiFeed(payload), null);
+    $("uploadHint").textContent = "Live Feed \u00b7 Updated " +
       new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
   }catch(err){
-    $("uploadHint").textContent = "Feed Unreachable — Drop Export to Update";
+    $("uploadHint").textContent = "Feed Unreachable \u2014 Drop Export to Update";
   }
 }
 if(FEED_URL){ fetchFeed(); setInterval(fetchFeed, FEED_MINUTES * 60 * 1000); }
