@@ -152,26 +152,41 @@ function num(v) {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Field names below are the ServiceTitan API names (camelCase), confirmed
+ * against /api/report-meta. The Excel export shows *labels*, which are
+ * different strings — each pick() lists the API name first, then the label
+ * as a fallback so a hand-pasted export still parses.
+ */
 function normalizeRow(row) {
-  const name = String(pick(row, ['Name', 'name', 'Technician']) || '').trim();
-  const unit = String(pick(row, ['Technician Business Unit', 'BusinessUnit']) || '').trim();
+  const name = String(pick(row, ['Name']) || '').trim();
+  const unit = String(
+    pick(row, ['TechnicianBusinessUnit', 'Technician Business Unit']) || ''
+  ).trim();
 
   return {
     name,
     unit,
-    revenue: num(pick(row, ['Completed Revenue with Adjustments'])),
-    completedJobs: num(pick(row, ['Completed Jobs'])),
-    jobAverage: num(pick(row, ['Total Job Average'])),
-    conversionRate: num(pick(row, ['Total Conversion Rate'])),
-    closeRate: num(pick(row, ['Close Rate'])),
-    totalSales: num(pick(row, ['Total Sales'])),
-    avgSale: num(pick(row, ['Closed Average Sale'])),
-    optionsPerOpp: num(pick(row, ['Options per Opportunity'])),
-    leadsSet: num(pick(row, ['Leads Set'])),
-    onTimePct: num(pick(row, ['Appts On Time Percentage'])),
-    billableEfficiency: num(pick(row, ['Billable Efficiency'])),
-    membershipConv: num(pick(row, ['Tech Membership Conversion Rate'])),
-    tglSales: num(pick(row, ['Total Sales from TGL'])),
+    dailyGoal: num(pick(row, ['DailyGoal', 'Daily Goal'])),
+    revenue: num(pick(row, ['CompletedRevenueWithAdjustments', 'Completed Revenue with Adjustments'])),
+    completedJobs: num(pick(row, ['CompletedJobs', 'Completed Jobs'])),
+    opportunity: num(pick(row, ['Opportunity'])),
+    convertedJobs: num(pick(row, ['ConvertedJobs', 'Converted Jobs'])),
+    jobAverage: num(pick(row, ['TotalJobAverage', 'Total Job Average'])),
+    conversionRate: num(pick(row, ['TotalConversionRate', 'Total Conversion Rate'])),
+    closeRate: num(pick(row, ['CloseRate', 'Close Rate'])),
+    totalSales: num(pick(row, ['TotalSales', 'Total Sales'])),
+    avgSale: num(pick(row, ['ClosedAverageSale', 'Closed Average Sale'])),
+    optionsPerOpp: num(pick(row, ['OptionsPerOpportunity', 'Options per Opportunity'])),
+    leadsSet: num(pick(row, ['LeadsSet', 'Leads Set'])),
+    onTimePct: num(pick(row, ['OnTimePercentage', 'Appts On Time Percentage'])),
+    billableEfficiency: num(pick(row, ['BillableEfficiency', 'Billable Efficiency'])),
+    membershipConv: num(pick(row, ['MembershipConversionRate', 'Tech Membership Conversion Rate'])),
+    techLeadJobs: num(pick(row, ['TechLeadJobs', 'Tech Lead Jobs'])),
+    marketingLeadJobs: num(pick(row, ['MarketingLeadJobs', 'Marketing Lead Jobs'])),
+    tglSales: num(pick(row, ['TotalSalesFromTgl', 'Total Sales from TGL'])),
+    tglCloseRate: num(pick(row, ['CloseRateFromTgl', 'Close Rate from TGL'])),
+    marketingSales: num(pick(row, ['TotalSalesFromMarketingLeads', 'Total Sales from Marketing Leads'])),
     photo: (cfg.photos || {})[name] || null,
     role: (cfg.roles || {})[name] || cfg.roleDefault || 'Technician',
   };
@@ -214,26 +229,8 @@ function addForceShows(boards, range) {
     const b = boards[boardKey];
     if (!b) continue;
     if (b.techs.some((t) => t.name === name)) continue;
-    b.techs.push({
-      name,
-      unit: '',
-      revenue: 0,
-      completedJobs: 0,
-      jobAverage: 0,
-      conversionRate: 0,
-      closeRate: 0,
-      totalSales: 0,
-      avgSale: 0,
-      optionsPerOpp: 0,
-      leadsSet: 0,
-      onTimePct: 0,
-      billableEfficiency: 0,
-      membershipConv: 0,
-      tglSales: 0,
-      photo: (cfg.photos || {})[name] || null,
-      role: (cfg.roles || {})[name] || cfg.roleDefault || 'Technician',
-      rank: b.techs.length + 1,
-    });
+    const blank = normalizeRow({ Name: name });
+    b.techs.push({ ...blank, noActivity: true, rank: b.techs.length + 1 });
   }
 }
 
