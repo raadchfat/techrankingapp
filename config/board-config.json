@@ -26,9 +26,15 @@
   },
 
   "targets": {
-    "service": { "monthlyRevenue": 0 },
-    "install": { "monthlyRevenue": 0 },
-    "sales": { "monthlyRevenue": 0 }
+    "service": { "perTechMonthlyRevenue": 45000 },
+    "install": { "perTechMonthlyRevenue": 150000 },
+    "sales": { "perTechMonthlyRevenue": 150000 }
+  },
+
+  "rankBy": {
+    "service": "pctToGoal",
+    "install": "pctToGoal",
+    "sales": "pctToGoal"
   },
 
   "exclude": ["Cody Hobbs", "Rod Chfat Field"],
