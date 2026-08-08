@@ -182,6 +182,7 @@ function normalizeRow(row) {
     avgSale: num(pick(row, ['ClosedAverageSale', 'Closed Average Sale'])),
     optionsPerOpp: num(pick(row, ['OptionsPerOpportunity', 'Options per Opportunity'])),
     leadsSet: num(pick(row, ['LeadsSet', 'Leads Set'])),
+    leadGenOpportunity: num(pick(row, ['LeadGenerationOpportunity', 'Lead Gen Opportunity'])),
     onTimePct: num(pick(row, ['OnTimePercentage', 'Appts On Time Percentage'])),
     billableEfficiency: num(pick(row, ['BillableEfficiency', 'Billable Efficiency'])),
     membershipConv: num(pick(row, ['MembershipConversionRate', 'Tech Membership Conversion Rate'])),
