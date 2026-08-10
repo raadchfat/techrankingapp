@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Omaha Drain — Division Boards</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -21,17 +20,14 @@
   body{background:var(--bg);color:var(--ink);font-family:'Archivo',sans-serif;overflow:hidden}
   body.idle{cursor:none}
   .stage{height:100vh;display:flex;flex-direction:column;padding:2vh 2vw;gap:1.4vh}
-
   header{display:flex;align-items:flex-end;justify-content:space-between}
   .title{font-family:'Archivo Expanded',sans-serif;font-weight:900;font-size:4.6vh;letter-spacing:.02em;text-transform:uppercase;line-height:1}
   .subtitle{font-size:1.9vh;font-weight:600;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.14em;margin-top:.8vh}
   .subtitle b{color:var(--teal)}
   .meta{text-align:right;color:var(--ink-dim);font-size:1.9vh;font-weight:600;text-transform:uppercase;letter-spacing:.1em}
   .meta .clock{font-size:2.8vh;color:var(--ink);font-weight:800}
-
   .boards{flex:1;display:grid;grid-template-columns:25vw 1fr;gap:1.3vw;min-height:0}
   .grid{display:grid;grid-auto-rows:1fr;gap:1.1vh 1vw;min-height:0}
-
   .card{
     background:var(--card);border:1px solid var(--line);border-radius:1.6vh;
     padding:1.5vh 1.1vw;display:flex;flex-direction:column;gap:.9vh;min-height:0;
@@ -39,21 +35,18 @@
   }
   .rankchip{position:absolute;top:1.1vh;right:.9vw;background:var(--teal);color:#fff;font-weight:800;font-size:1.7vh;padding:.3vh .7vw;border-radius:.8vh}
   .card.featured .rankchip{background:var(--gold);color:#3A2B00}
-
   .head{display:flex;align-items:center;gap:.8vw;min-width:0}
   .avatar{width:12vh;height:12vh;border-radius:1.4vh;flex:none;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:4.4vh;object-fit:cover;overflow:hidden}
   img.avatar{background:#DDE5E2}
   .who{min-width:0}
   .name{font-weight:800;font-size:2.3vh;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .role{font-size:1.5vh;font-weight:600;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.1em}
-
   .bigstat{margin-top:auto}
   .bigstat .label{font-size:1.5vh;font-weight:700;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.12em}
   .bigstat .val{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:3.1vh;line-height:1.15}
   .bigstat .val .tgt{color:var(--ink-dim);font-size:2vh;font-weight:700}
   .good{color:var(--green)}
   .bad{color:var(--red)}
-
   .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:.5vh .4vw}
   .tiles.t3{grid-template-columns:repeat(3,1fr)}
   .tile{border-radius:1vh;padding:.8vh .4vw;text-align:center;color:#fff}
@@ -68,15 +61,12 @@
   .fineprint b{color:var(--ink);text-transform:uppercase;letter-spacing:.06em}
   .tile .t-label{font-size:1.25vh;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.92;white-space:nowrap;overflow:hidden}
   .tile .t-val{font-weight:800;font-size:1.9vh;line-height:1.25;white-space:nowrap}
-
   .card.featured{border:2px solid var(--gold);padding:2vh 1.3vw;gap:1.2vh}
   .card.featured .avatar{width:100%;height:38vh;aspect-ratio:auto;object-fit:cover;object-position:50% 15%;border-radius:1.4vh;font-size:8vh}
   .card.featured .head{flex-direction:column;align-items:stretch;gap:1.1vh}
   .card.featured .name{font-size:3.2vh;white-space:normal}
   .card.featured .bigstat .val{font-size:4.2vh}
   .card.featured .tile .t-val{font-size:2.2vh}
-
-
   /* ===== SERVICE BOARD v2 — datacube-style card ===== */
   .card.v2{padding:1.3vh .95vw;gap:.85vh;justify-content:flex-start}
   .card.v2 .rankchip{display:none}
@@ -102,7 +92,6 @@
   .tile.v2t.bad{background:var(--fill-r)}
   .tile.v2t.bad .t-label{color:var(--ink-r)}
   .tile.v2t.na .t-val{color:var(--ink-n)}
-
   .card.v2 .v2strip{border-radius:.7vh;background:var(--fill-n);padding:.5vh .3vw;text-align:center;margin-top:.35vh}
   .card.v2 .v2strip .s-val{font-weight:800;font-size:1.7vh;color:var(--ink);line-height:1.1}
   .card.v2 .v2strip .s-label{font-size:1.05vh;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-n);line-height:1.1}
@@ -119,7 +108,6 @@
   .card.featured.v2 .v2tiles{flex:1}
   .card.featured.v2 .tile.v2t .t-val{font-size:2.3vh}
   .card.featured.v2 .tile.v2t .t-label{font-size:1.25vh}
-
   footer{display:flex;align-items:center;justify-content:space-between;color:var(--ink-dim);font-size:1.8vh;font-weight:600;text-transform:uppercase;letter-spacing:.1em}
   .legend{display:flex;gap:1.6vw;align-items:center}
   .key{display:flex;align-items:center;gap:.4vw}
@@ -131,7 +119,6 @@
   .dot.active{background:var(--teal);transform:scale(1.35)}
   #uploadHint{cursor:pointer}
   #uploadHint:hover{color:var(--teal)}
-
   .drop-overlay{
     position:fixed;inset:0;background:rgba(18,166,131,.93);color:#fff;
     display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2vh;
@@ -161,14 +148,11 @@
       <div id="unitLabel">Rotating All Divisions</div>
     </div>
   </header>
-
   <div class="boards">
     <div class="card featured" id="featured"></div>
     <div class="grid" id="grid"></div>
   </div>
-
   <div class="fineprint" id="finePrint"><b>Total Revenue:</b> completed job revenue incl. adjustments — goal $40K/mo&nbsp;·&nbsp;<b>Sales:</b> total $ sold on your jobs — goal $100K/mo&nbsp;·&nbsp;<b>Close:</b> converted jobs ÷ opportunities (Total Conversion Rate) — goal 70%&nbsp;·&nbsp;<b>Avg Ticket:</b> revenue ÷ completed jobs — goal $400&nbsp;·&nbsp;<b>On Time:</b> arrivals within promised window — goal 80%</div>
-
   <footer>
     <div class="legend">
       <div class="key"><div class="swatch g"></div>On Target</div>
@@ -178,14 +162,12 @@
     <div id="uploadHint" title="Upload ServiceTitan export">Live Feed · Updated 7:37 PM</div>
   </footer>
 </div>
-
 <div class="drop-overlay" id="dropOverlay">
   Drop ServiceTitan Export
   <small>Works with the scheduled "Technician Performance Board for TV" report or the Business Unit Manager ScoreCard export</small>
 </div>
 <div class="toast" id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx" style="display:none">
-
 <script>
 /* ================================================================
    CONFIG
@@ -193,24 +175,20 @@
    URLS FOR THE THREE TVs:
      yoursite.com?unit=service   yoursite.com?unit=sales
      yoursite.com?unit=install   yoursite.com  (cycles all three)
-
    DATA IN, two ways:
      1. Drag any ServiceTitan export onto the page — the scheduled
         "Technician Performance Board for TV" report OR the
         Business Unit Manager ScoreCard export. Auto-detected.
      2. Automated: paste the published Google Sheet xlsx link into
         FEED_URL (fed by the Zapier + Apps Script pipeline).
-
    TARGETS: the tech's revenue target comes from the ServiceTitan
    "Daily Goal" column x days in the report range, when present.
    Everything else uses the WEEKLY numbers below, auto-scaled to
    the report's date range.
    ================================================================ */
-
 const EXCLUDE = [
   "Rod Chfat Field", "Jacksonator-Field Only", "Cody Hobbs"
 ];
-
 /* Force a tech onto a specific board regardless of their home
    Business Unit in ServiceTitan, e.g. "Tech Name": "sales" */
 /* Always show these techs even with zero activity in the report */
@@ -220,15 +198,14 @@ const FORCE_SHOW = [
   "William Smith", "Nicholas Rivera", "Dylan Maet",
   /* Install */
   "Colton Bennett", "Manny Martinez", "Jackson Field",
-  "David Solokhin", "Danik Pidchenko", "Andrei Grachev"
+  "David Solokhin", "Danik Pidchenko", "Andrei Grachev",
+  "Zachary Holman"
 ];
-
 /* ASSIGN: hard override — pins a tech to a board regardless of what
    ServiceTitan says. Leave empty so ST's Business Unit stays the
    source of truth; add a line only for a deliberate exception. */
 const ASSIGN = {
 };
-
 /* HOME_BOARD: used ONLY to place a force-shown tech who has no activity
    yet this month. Once ST reports any work, their real Business Unit wins. */
 const HOME_BOARD = {
@@ -244,19 +221,19 @@ const HOME_BOARD = {
   "Jackson Field":   "install",
   "David Solokhin":  "install",
   "Danik Pidchenko": "install",
-  "Andrei Grachev":  "install"
+  "Andrei Grachev":  "install",
+  "Zachary Holman":  "install"
 };
-
 const ROLES = {
   "Brandon Tibbott": "Sewer Specialist",
   "Bart Kephart":    "Service Tech",
   "Colton Bennett":  "Install Lead",
   "Manny Martinez":  "Install Tech",
   "David Solokhin":  "Subcontractor",
-  "Jackson Field":   "Install Lead"
+  "Jackson Field":   "Install Lead",
+  "Zachary Holman":  "Install Apprentice"
 };
 const ROLE_DEFAULT = { service:"Service Tech", servicesales:"Service Tech", sales:"Selling Tech", install:"Install Crew" };
-
 const PHOTOS = {
   "Brandon Tibbott": "photos/brandon.jpg",
   "Steve Springer":  "photos/steve.jpg",
@@ -270,10 +247,9 @@ const PHOTOS = {
   "Andrei Grachev":  "photos/andrei.jpg",
   "Jackson Field":   "photos/jackson.jpg",
   "Dylan Maet":      "photos/dylan.jpg",
-  "David Solokhin":  "photos/david.jpg"
-  "Zach Holman":  "photos/zach.jpg"
+  "David Solokhin":  "photos/david.jpg",
+  "Zachary Holman":  "photos/zach.jpg"
 };
-
 const TARGETS = {
   service: { revenue: 40000, sales: 100000, close: 70, avgTicket: 400, avgSale: 500, onTime: 80, leads: 20, zeroTicket: 6 },
   // zeroTicket unused while tilesAlt is parked; kept so the Cube set can be switched back on.
@@ -288,9 +264,7 @@ const TARGETS = {
 };
 TARGETS.servicesales = { sales: 150000, avgSale: 5000, close: 50, onTime: 80 };
 // Service · Sales slide: sold ≥ $150K/mo, avg sale ≥ $5K, close ≥ 50%, on-time ≥ 80%
-
 const CYCLE_SECONDS = 15;
-
 /* Fine print shown under each board — edit freely */
 const FINE_PRINT = {
   service:      "<b>Total Revenue:</b> completed job revenue incl. adjustments — goal $40K/mo&nbsp;·&nbsp;<b>Sales:</b> total $ sold on your jobs — goal $100K/mo&nbsp;·&nbsp;<b>Close:</b> converted jobs ÷ opportunities (Total Conversion Rate) — goal 70%&nbsp;·&nbsp;<b>Avg Ticket:</b> revenue ÷ completed jobs — goal $400&nbsp;·&nbsp;<b>On Time:</b> arrivals within promised window — goal 80%",
@@ -298,17 +272,14 @@ const FINE_PRINT = {
   install:      "<b>Install Revenue:</b> completed install revenue — goal $100K/mo&nbsp;·&nbsp;<b>Efficiency:</b> sold hours ÷ actual hours, capped at 100% (gray = no hours data) — goal 80%&nbsp;·&nbsp;<b>On Time:</b> arrivals within promised window — goal 80%",
   sales:        "<b>Total Sold:</b> total $ sold — goal $250K/mo &nbsp;·&nbsp; <b>Close:</b> closed ÷ opportunities — goal 50% &nbsp;·&nbsp; <b>Avg Sale:</b> sold $ ÷ closed — goal $8,000 &nbsp;·&nbsp; <b>On Time:</b> goal 80%"
 };
-
 /* LIVE FEED (optional): publish the "OD Board Feed" Google Sheet
    to the web as Entire Document → Microsoft Excel (.xlsx) and
    paste the link here. Leave "" for drag-and-drop only. */
 const FEED_URL     = "/api/feed";   // ServiceTitan Reporting API (Netlify function)
 const FEED_MINUTES = 15;
 /* ================================================================ */
-
 /* Preloaded fallback: scheduled report, Aug 3 – Aug 7, 2026 */
 const INITIAL_DATA = {"label":"Aug 3 – Aug 7, 2026","weeks":0.71,"days":5,"divisions":{"service":{"Steve Springer":{"revenue":13235.0,"jobs":11,"opps":10,"sales":29816.72,"closeRate":72.7,"estClose":62.5,"leads":8,"avgTicket":1203.18,"avgSale":2625.6,"onTime":86.7,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Jamison Gruber":{"revenue":11657.45,"jobs":11,"opps":11,"sales":32455.4,"closeRate":90.9,"estClose":72.7,"leads":7,"avgTicket":1059.77,"avgSale":4056.93,"onTime":75.0,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Brandon Tibbott":{"revenue":4777.0,"jobs":12,"opps":10,"sales":29627.13,"closeRate":83.3,"estClose":90.0,"leads":5,"avgTicket":398.08,"avgSale":3140.24,"onTime":83.3,"dailyGoal":2000.0,"eff":77.3,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"William Smith":{"revenue":1820.55,"jobs":12,"opps":11,"sales":3721.55,"closeRate":91.7,"estClose":80.0,"leads":9,"avgTicket":151.71,"avgSale":320.57,"onTime":84.2,"dailyGoal":2000.0,"eff":54.2,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Dylan Maet":{"revenue":1971.0,"jobs":2,"opps":2,"sales":0.0,"closeRate":50.0,"estClose":0.0,"leads":2,"avgTicket":985.5,"avgSale":0.0,"onTime":72.7,"dailyGoal":0.0,"eff":28.6,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Dalton Jones":{"revenue":0.0,"jobs":1,"opps":0,"sales":0.0,"closeRate":0.0,"estClose":0.0,"leads":0,"avgTicket":0.0,"avgSale":0.0,"onTime":0.0,"dailyGoal":2000.0,"eff":null,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null}},"sales":{"Cody Hobbs":{"revenue":0.0,"jobs":4,"opps":3,"sales":4375.0,"closeRate":75.0,"estClose":50.0,"leads":1,"avgTicket":0.0,"avgSale":4375.0,"onTime":100.0,"dailyGoal":2000.0,"eff":null,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null}},"install":{"Colton Bennett":{"revenue":38182.34,"jobs":2,"opps":2,"sales":0.0,"closeRate":100.0,"estClose":0.0,"leads":2,"avgTicket":19091.17,"avgSale":0.0,"onTime":0.0,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Manny Martinez":{"revenue":18860.0,"jobs":13,"opps":11,"sales":1897.0,"closeRate":46.2,"estClose":11.1,"leads":9,"avgTicket":1450.77,"avgSale":1289.0,"onTime":100.0,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Jackson Field":{"revenue":40104.16,"jobs":1,"opps":1,"sales":0.0,"closeRate":100.0,"estClose":0.0,"leads":0,"avgTicket":40104.16,"avgSale":0.0,"onTime":100.0,"dailyGoal":0.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null}}}};
-
 /* ---------------- state ---------------- */
 const params = new URLSearchParams(location.search);
 const lockedUnit = (params.get("unit") || "").toLowerCase();
@@ -317,13 +288,11 @@ const ACTIVE_UNITS = ["service","servicesales","install"]; // boards shown on TV
 const UNIT_TITLES = { service:"Service", servicesales:"Sales", sales:"Sales", install:"Install" };
 let unitIndex = Math.max(0, ACTIVE_UNITS.indexOf(lockedUnit));
 let data = INITIAL_DATA;
-
 const STORE_KEY = "odTvBoardData";
 try{
   const saved = localStorage.getItem(STORE_KEY);
   if(saved) data = JSON.parse(saved);
 }catch(e){}
-
 /* ---------------- helpers ---------------- */
 const $ = id => document.getElementById(id);
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
@@ -348,7 +317,6 @@ function targetFor(t, div, key){
   if(key === "revenue" && t.dailyGoal > 0) return t.dailyGoal * 30; // ST Daily Goal fallback, monthly
   return 0;
 }
-
 /* metric layout per division */
 const METRICS = {
   service: {
@@ -434,7 +402,6 @@ const METRICS = {
     ])
   }
 };
-
 /* ---------------- render ---------------- */
 function assignedDivisions(){
   /* apply ASSIGN overrides on top of home-BU placement */
@@ -452,7 +419,6 @@ function assignedDivisions(){
   }
   return out;
 }
-
 function cardHTML(t, rank, div){
   const M = METRICS[div];
   const bigVal = t[M.big.key];
@@ -482,7 +448,6 @@ function cardHTML(t, rank, div){
     '</div>'
   );
 }
-
 /* v2 card: green/red total bar on top, photo beside a 3x2 tile grid.
    Used only by the Service board; install & sales keep the original card. */
 function cardHTMLV2(t, rank, div, isFeat){
@@ -495,19 +460,16 @@ function cardHTMLV2(t, rank, div, isFeat){
     ? '<img class="avatar" src="' + esc(PHOTOS[t.name]) + '" alt="" loading="eager" decoding="async" fetchpriority="high" data-ini="' + esc(initials(t.name)) + '" onerror="avatarFallback(this)">'
     : '<div class="avatar">' + esc(initials(t.name)) + '</div>';
   const tiles = M.tiles(t);
-
   const head =
     '<div class="v2head"><div class="v2who">' +
       '<div class="v2name">' + esc(t.name) + '</div>' +
       '<div class="v2role">' + esc(role) + '</div>' +
     '</div><div class="v2rank">#' + rank + '</div></div>';
-
   const bar =
     '<div class="v2bar ' + (bigGood ? "good" : "bad") + '">' +
       '<span class="bv">' + M.big.fmt(bigVal) + '</span>' +
       '<span class="bl">' + M.big.label + '</span>' +
     '</div>';
-
   /* 3 or 6 tiles -> 3 across; 2 or 4 tiles -> 2 across, so no orphan row */
   const tileGrid =
     '<div class="v2tiles' + (tiles.length === 2 || tiles.length === 4 ? " c2" : "") + '">' +
@@ -517,18 +479,15 @@ function cardHTMLV2(t, rank, div, isFeat){
         '<div class="t-label">' + x.label + '</div></div>'
       ).join("") +
     '</div>';
-
   const st = M.strip ? M.strip(t) : null;
   const strip = st
     ? '<div class="v2strip"><div class="s-val">' + st.val + '</div>' +
       '<div class="s-label">' + st.label + '</div></div>'
     : '';
-
   return isFeat
     ? head + '<div class="v2body">' + avatar + bar + tileGrid + strip + '</div>'
     : head + bar + '<div class="v2body">' + avatar + tileGrid + '</div>' + strip;
 }
-
 function render(){
   const div = ACTIVE_UNITS[unitIndex];
   const M = METRICS[div];
@@ -536,16 +495,13 @@ function render(){
   $("rangeLabel").textContent = data.label || "—";
   $("unitLabel").textContent = lockedUnit ? "" : "Rotating All Divisions";
   $("finePrint").innerHTML = FINE_PRINT[div] || "";
-
   $("dots").innerHTML = (lockedUnit || ACTIVE_UNITS.length < 2) ? "" :
     ACTIVE_UNITS.map((u,i) => '<div class="dot' + (i === unitIndex ? " active" : "") + '"></div>').join("");
-
   const pool = div === "servicesales" ? "service" : div;
   const techs = Object.entries(assignedDivisions()[pool])
     .filter(([name]) => !EXCLUDE.includes(name))
     .map(([name,d]) => ({name, ...d}))
     .sort((a,b) => M.rank(b) - M.rank(a));
-
   const feat = $("featured"), grid = $("grid");
   if(!techs.length){
     feat.innerHTML = "";
@@ -567,11 +523,9 @@ function render(){
     ? (n > 9 ? "repeat(4,1fr)" : "repeat(3,1fr)")
     : (n > 8 ? "repeat(5,1fr)" : n > 6 ? "repeat(4,1fr)" : "repeat(3,1fr)");
 }
-
 /* ---------------- parsers ---------------- */
 function num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
 function truthy(v){ return v === true || v === "True" || v === "TRUE" || v === 1; }
-
 function parseDateRange(wb){
   let label = "Custom Range", weeks = 1, days = 7;
   const fs = wb.Sheets["Filters"];
@@ -594,7 +548,6 @@ function parseDateRange(wb){
   }
   return { label, weeks, days };
 }
-
 /* Format A: scheduled "Technician Performance Board for TV" report */
 function parseScheduledReport(wb, sheetName){
   const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {defval:null});
@@ -644,7 +597,6 @@ function parseScheduledReport(wb, sheetName){
   }
   return divisions;
 }
-
 /* Format B: Business Unit Manager ScoreCard multi-tab export */
 function parseScoreCard(wb){
   const divisions = {};
@@ -687,7 +639,6 @@ function parseScoreCard(wb){
   }
   return divisions;
 }
-
 function parseWorkbook(wb){
   const range = parseDateRange(wb);
   /* detect format: any sheet with a "Technician Business Unit" header = scheduled report */
@@ -699,7 +650,6 @@ function parseWorkbook(wb){
   }
   return { ...range, divisions: parseScoreCard(wb) };
 }
-
 /* ---------------- data intake ---------------- */
 function applyData(d, source){
   data = d;
@@ -707,7 +657,6 @@ function applyData(d, source){
   render();
   if(source) toast("Board updated — " + data.label);
 }
-
 function handleFile(file){
   const reader = new FileReader();
   reader.onload = e => {
@@ -720,14 +669,12 @@ function handleFile(file){
   };
   reader.readAsArrayBuffer(file);
 }
-
 /* Convert the /api/feed payload into the board's internal shape.
    The board renders from { label, divisions: { service|sales|install: { Name: {...} } } },
    so we translate rather than rewrite the renderer. */
 function adaptApiFeed(payload){
   const divisions = { service:{}, sales:{}, install:{} };
   const pct = v => (v == null ? 0 : v * 100);
-
   for(const [key, board] of Object.entries(payload.boards || {})){
     if(!divisions[key]) divisions[key] = {};
     for(const t of board.techs || []){
@@ -756,10 +703,8 @@ function adaptApiFeed(payload){
       };
     }
   }
-
   const days = (payload.boards.service && payload.boards.service.target
              && payload.boards.service.target.businessDaysElapsed) || 0;
-
   return {
     label: monthLabel(payload) ,
     weeks: days / 6,
@@ -767,7 +712,6 @@ function adaptApiFeed(payload){
     divisions
   };
 }
-
 function monthLabel(payload){
   const d = new Date(payload.generatedAt || Date.now());
   const month = d.toLocaleString("en-US", { month:"short", timeZone:"America/Chicago" });
@@ -775,7 +719,6 @@ function monthLabel(payload){
   const year  = d.toLocaleString("en-US", { year:"numeric", timeZone:"America/Chicago" });
   return month + " 1 \u2013 " + month + " " + day + ", " + year;
 }
-
 async function fetchFeed(){
   if(!FEED_URL) return;
   try{
@@ -792,7 +735,6 @@ async function fetchFeed(){
   }
 }
 if(FEED_URL){ fetchFeed(); setInterval(fetchFeed, FEED_MINUTES * 60 * 1000); }
-
 let toastTimer;
 function toast(msg){
   const t = $("toast");
@@ -801,7 +743,6 @@ function toast(msg){
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove("on"), 4000);
 }
-
 /* drag & drop + picker */
 let dragDepth = 0;
 window.addEventListener("dragenter", e => { e.preventDefault(); dragDepth++; $("dropOverlay").classList.add("on"); });
@@ -813,14 +754,12 @@ window.addEventListener("drop", e => {
 });
 $("uploadHint").addEventListener("click", () => $("fileInput").click());
 $("fileInput").addEventListener("change", e => { if(e.target.files.length) handleFile(e.target.files[0]); });
-
 /* other tabs update when one tab gets new data */
 window.addEventListener("storage", e => {
   if(e.key === STORE_KEY && e.newValue){
     try{ data = JSON.parse(e.newValue); render(); }catch(err){}
   }
 });
-
 /* idle cursor hide */
 let idleTimer;
 function wake(){
@@ -830,13 +769,10 @@ function wake(){
 }
 window.addEventListener("mousemove", wake);
 wake();
-
 /* clock + rotation */
 function tick(){ $("clock").textContent = new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}); }
 tick(); setInterval(tick, 15000);
 if(!lockedUnit && ACTIVE_UNITS.length > 1) setInterval(() => { unitIndex = (unitIndex + 1) % ACTIVE_UNITS.length; render(); }, CYCLE_SECONDS * 1000);
 render();
 </script>
-
-
 </body></html>
