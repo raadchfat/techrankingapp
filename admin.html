@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Board roster — Omaha Drain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF1F4; --card:#FFFFFF; --line:#DCE1E6;
+    --ink:#12181D; --muted:#5C666E; --faint:#8B959C;
+    --blue:#1B6FB8; --blue-dark:#155A96;
+    --green:#1F9463; --red:#C6453B; --amber:#B8791C;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;font-size:15px;line-height:1.45;
+    padding-bottom:80px;
+  }
+  a{color:var(--blue)}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:20;background:var(--card);
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:14px 22px;flex-wrap:wrap;
+  }
+  .brand h1{font-size:20px;font-weight:800;letter-spacing:-.01em}
+  .brand p{font-size:13px;color:var(--muted);margin-top:2px}
+  .actions{display:flex;align-items:center;gap:12px}
+  .status{font-size:13px;color:var(--muted);min-height:19px}
+  .status.dirty{color:var(--amber);font-weight:600}
+  .status.saved{color:var(--green);font-weight:600}
+  .status.error{color:var(--red);font-weight:600}
+
+  button{font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border:none;border-radius:7px}
+  .btn-primary{background:var(--blue);color:#fff;padding:10px 18px}
+  .btn-primary:hover{background:var(--blue-dark)}
+  .btn-primary:disabled{background:#B6C2CC;cursor:default}
+  .btn-ghost{background:transparent;color:var(--blue);border:1px solid var(--line);padding:9px 14px}
+  .btn-ghost:hover{border-color:var(--blue)}
+  .btn-danger{background:transparent;color:var(--red);padding:6px 10px;font-size:13px}
+  .btn-danger:hover{background:#FBEDEC}
+
+  /* ---------- Layout ---------- */
+  main{max-width:1080px;margin:0 auto;padding:24px 22px}
+  .board-group{margin-bottom:28px}
+  .board-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+  .board-head h2{font-size:17px;font-weight:700}
+  .board-head span{font-size:13px;color:var(--faint)}
+
+  .tech{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;margin-bottom:8px;
+    display:grid;grid-template-columns:56px 1.4fr 1.1fr 110px auto auto;
+    gap:14px;align-items:center;
+  }
+  .tech.hidden-row{opacity:.55}
+  .avatar{
+    width:56px;height:56px;border-radius:8px;overflow:hidden;position:relative;
+    background:#E3E8EC;cursor:pointer;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:var(--muted);font-size:16px;
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .avatar .overlay{
+    position:absolute;inset:0;background:rgba(18,24,29,.66);color:#fff;
+    font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity .15s;text-align:center;
+  }
+  .avatar:hover .overlay,.avatar:focus-visible .overlay{opacity:1}
+  .avatar.busy .overlay{opacity:1}
+
+  input[type=text],select{
+    width:100%;font-family:inherit;font-size:14px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:7px;padding:9px 10px;
+  }
+  input[type=text]:focus,select:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+  .field-label{display:block;font-size:11px;color:var(--faint);margin-bottom:3px}
+
+  .toggles{display:flex;gap:14px;align-items:center}
+  .toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap;cursor:pointer}
+  .toggle input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+
+  .add-row{display:flex;gap:10px;margin-top:4px}
+
+  /* ---------- Login ---------- */
+  .gate{
+    position:fixed;inset:0;background:var(--bg);z-index:50;
+    display:flex;align-items:center;justify-content:center;padding:22px;
+  }
+  .gate-card{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:30px;width:100%;max-width:380px;
+  }
+  .gate-card h1{font-size:20px;font-weight:800;margin-bottom:6px}
+  .gate-card p{font-size:14px;color:var(--muted);margin-bottom:18px}
+  .gate-card input{width:100%;padding:11px 12px;font-size:15px;font-family:inherit;
+    border:1px solid var(--line);border-radius:7px;margin-bottom:12px}
+  .gate-card button{width:100%;padding:11px}
+  .gate-err{color:var(--red);font-size:13px;font-weight:600;margin-top:10px;min-height:18px}
+
+  .empty{color:var(--faint);font-size:14px;padding:14px;background:var(--card);
+    border:1px dashed var(--line);border-radius:10px;margin-bottom:8px}
+  .note{font-size:13px;color:var(--muted);margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+
+  @media (max-width:760px){
+    .tech{grid-template-columns:56px 1fr;gap:10px}
+    .tech > .col-span{grid-column:1 / -1}
+    .toggles{grid-column:1 / -1;flex-wrap:wrap}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <h1>Board roster</h1>
+    <p>Sign in to manage who appears on the shop TVs.</p>
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password">
+    <button class="btn-primary" id="loginBtn">Sign in</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand">
+    <h1>Board roster</h1>
+    <p>Changes reach the TVs within 15 minutes of saving.</p>
+  </div>
+  <div class="actions">
+    <div class="status" id="status"></div>
+    <button class="btn-ghost" id="reloadBtn">Discard changes</button>
+    <button class="btn-primary" id="saveBtn" disabled>Save changes</button>
+  </div>
+</div>
+
+<main id="app" hidden>
+  <div id="boards"></div>
+  <p class="note">
+    <strong>Pin to board</strong> keeps a tech on the board you choose even if ServiceTitan says otherwise.
+    Leave it off and their ServiceTitan business unit decides.
+    <strong>Always show</strong> gives them a card at the start of the month before any jobs post.
+    <strong>Hide</strong> removes them from every board without deleting their settings.
+  </p>
+</main>
+
+<input type="file" id="photoInput" accept="image/*" hidden>
+
+<script>
+/* Served by netlify/functions/board-config.js on this same site */
+const API_URL = "/api/config";
+
+const BOARDS = [
+  { key:"service", label:"Service board", note:"Appears on both service slides" },
+  { key:"install", label:"Install board", note:"" },
+  { key:"sales",   label:"Sewer sales board", note:"Currently off the TV rotation" }
+];
+
+const $ = id => document.getElementById(id);
+let techs = [];
+let dirty = false;
+let pw = sessionStorage.getItem("odAdminPw") || "";
+let photoTarget = null;
+
+/* ---------------- API ---------------- */
+async function api(payload){
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" }, // avoids CORS preflight
+    body: JSON.stringify(Object.assign({ password: pw }, payload))
+  });
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+/* ---------------- State ---------------- */
+function setDirty(on){
+  dirty = on;
+  $("saveBtn").disabled = !on;
+  setStatus(on ? "Unsaved changes" : "", on ? "dirty" : "");
+}
+function setStatus(msg, cls){
+  const el = $("status");
+  el.textContent = msg;
+  el.className = "status" + (cls ? " " + cls : "");
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function initials(n){ return String(n).trim().split(/\s+/).map(w=>w[0]||"").join("").slice(0,2).toUpperCase() || "?"; }
+
+/* ---------------- Render ---------------- */
+function render(){
+  const wrap = $("boards");
+  wrap.innerHTML = "";
+
+  BOARDS.forEach(b => {
+    const group = document.createElement("section");
+    group.className = "board-group";
+    const list = techs.filter(t => (t.board || "service") === b.key);
+
+    group.innerHTML =
+      '<div class="board-head"><h2>' + b.label + '</h2>' +
+      '<span>' + list.length + (list.length === 1 ? " person" : " people") +
+      (b.note ? " · " + b.note : "") + '</span></div>';
+
+    if(!list.length){
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "Nobody on this board yet.";
+      group.appendChild(e);
+    }
+
+    list.forEach(t => group.appendChild(techRow(t)));
+
+    const add = document.createElement("div");
+    add.className = "add-row";
+    const btn = document.createElement("button");
+    btn.className = "btn-ghost";
+    btn.textContent = "Add someone to " + b.label.replace(" board","");
+    btn.onclick = () => {
+      techs.push({ name:"", board:b.key, role:"", photo:"", pin:false, always:true, hidden:false });
+      setDirty(true); render();
+      const inputs = wrap.querySelectorAll('input[data-f="name"]');
+      if(inputs.length) inputs[inputs.length-1].focus();
+    };
+    add.appendChild(btn);
+    group.appendChild(add);
+
+    wrap.appendChild(group);
+  });
+}
+
+function techRow(t){
+  const row = document.createElement("div");
+  row.className = "tech" + (t.hidden ? " hidden-row" : "");
+
+  /* photo */
+  const av = document.createElement("div");
+  av.className = "avatar";
+  av.tabIndex = 0;
+  av.title = "Change photo";
+  av.innerHTML = (t.photo
+      ? '<img src="' + esc(t.photo) + '" alt="" onerror="this.remove()">'
+      : esc(initials(t.name))) +
+    '<div class="overlay">Change</div>';
+  const pick = () => { photoTarget = t; $("photoInput").click(); };
+  av.onclick = pick;
+  av.onkeydown = e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); pick(); } };
+  row.appendChild(av);
+
+  /* name */
+  row.appendChild(field("Name in ServiceTitan", "name", t, "text",
+    "Must match ServiceTitan exactly"));
+  /* role */
+  row.appendChild(field("Title on the card", "role", t, "text", "e.g. Service Tech"));
+
+  /* board */
+  const bWrap = document.createElement("div");
+  bWrap.className = "col-span";
+  bWrap.innerHTML = '<label class="field-label">Board</label>';
+  const sel = document.createElement("select");
+  BOARDS.forEach(b => {
+    const o = document.createElement("option");
+    o.value = b.key; o.textContent = b.label.replace(" board","");
+    if((t.board || "service") === b.key) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.onchange = () => { t.board = sel.value; setDirty(true); render(); };
+  bWrap.appendChild(sel);
+  row.appendChild(bWrap);
+
+  /* toggles */
+  const tg = document.createElement("div");
+  tg.className = "toggles";
+  tg.appendChild(toggle("Pin to board", "pin", t));
+  tg.appendChild(toggle("Always show", "always", t));
+  tg.appendChild(toggle("Hide", "hidden", t, true));
+  row.appendChild(tg);
+
+  /* remove */
+  const rm = document.createElement("button");
+  rm.className = "btn-danger";
+  rm.textContent = "Remove";
+  rm.onclick = () => {
+    if(t.name && !confirm("Remove " + t.name + " from the board settings?")) return;
+    techs.splice(techs.indexOf(t), 1);
+    setDirty(true); render();
+  };
+  row.appendChild(rm);
+
+  return row;
+}
+
+function field(label, key, t, type, placeholder){
+  const w = document.createElement("div");
+  w.className = "col-span";
+  w.innerHTML = '<label class="field-label">' + label + '</label>';
+  const i = document.createElement("input");
+  i.type = type; i.value = t[key] || ""; i.placeholder = placeholder || "";
+  i.dataset.f = key;
+  i.oninput = () => { t[key] = i.value; setDirty(true); };
+  w.appendChild(i);
+  return w;
+}
+
+function toggle(label, key, t, rerender){
+  const l = document.createElement("label");
+  l.className = "toggle";
+  const c = document.createElement("input");
+  c.type = "checkbox"; c.checked = !!t[key];
+  c.onchange = () => { t[key] = c.checked; setDirty(true); if(rerender) render(); };
+  l.appendChild(c);
+  l.appendChild(document.createTextNode(label));
+  return l;
+}
+
+/* ---------------- Photo upload ---------------- */
+$("photoInput").onchange = async e => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if(!file || !photoTarget) return;
+  const t = photoTarget;
+
+  if(!t.name.trim()){
+    alert("Give this person a name first — the photo is filed under their name.");
+    return;
+  }
+
+  setStatus("Uploading photo…", "");
+  try{
+    const dataUrl = await squareJpeg(file, 450);
+    const res = await api({ action:"photo", name:t.name, dataUrl });
+    t.photo = res.url + "&v=" + Date.now();  // cache-bust the new image
+    setDirty(true);
+    render();
+    setStatus("Photo ready — save to publish it", "dirty");
+  }catch(err){
+    setStatus("Photo upload failed: " + err.message, "error");
+  }
+};
+
+/* center-crop toward the top (faces sit high), compress hard */
+function squareJpeg(file, size){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2;
+      const sy = img.height > img.width ? 0 : (img.height - side) / 2;
+      const c = document.createElement("canvas");
+      c.width = c.height = size;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,size,size);
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      resolve(c.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = () => reject(new Error("couldn't read that image"));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------------- Load / save ---------------- */
+async function load(){
+  const res = await api({ action:"login" });
+  techs = res.techs || [];
+  sessionStorage.setItem("odAdminPw", pw);
+  $("gate").hidden = true;
+  $("app").hidden = false;
+  setDirty(false);
+  render();
+}
+
+$("saveBtn").onclick = async () => {
+  const named = techs.filter(t => t.name.trim());
+  const dupes = named.map(t => t.name.trim().toLowerCase())
+    .filter((n,i,a) => a.indexOf(n) !== i);
+  if(dupes.length){
+    setStatus("Two people share the name \u201C" + dupes[0] + "\u201D — names must be unique", "error");
+    return;
+  }
+  $("saveBtn").disabled = true;
+  setStatus("Saving…", "");
+  try{
+    const res = await api({ action:"save", techs: named });
+    techs = res.techs || named;
+    setDirty(false);
+    setStatus("Saved. The TVs will pick this up within 15 minutes.", "saved");
+    render();
+  }catch(err){
+    setStatus("Save failed: " + err.message, "error");
+    $("saveBtn").disabled = false;
+  }
+};
+
+$("reloadBtn").onclick = async () => {
+  if(dirty && !confirm("Discard your unsaved changes?")) return;
+  setStatus("Reloading…", "");
+  try{ await load(); setStatus("", ""); }
+  catch(err){ setStatus(err.message, "error"); }
+};
+
+$("loginBtn").onclick = async () => {
+  pw = $("pw").value;
+  $("gateErr").textContent = "";
+  try{ await load(); }
+  catch(err){ $("gateErr").textContent = err.message; }
+};
+$("pw").onkeydown = e => { if(e.key === "Enter") $("loginBtn").click(); };
+
+window.addEventListener("beforeunload", e => {
+  if(dirty){ e.preventDefault(); e.returnValue = ""; }
+});
+
+/* auto sign-in if the password is still in this browser session */
+if(pw) load().catch(() => { pw = ""; sessionStorage.removeItem("odAdminPw"); });
+</script>
+</body>
+</html>
