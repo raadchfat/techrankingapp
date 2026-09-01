@@ -1,18 +1,61 @@
+# netlify.toml — Omaha Drain Division Boards
+# Repo: raadchfat/techrankingapp
+
 [build]
+  # index.html and admin.html sit at the repo root
   publish = "."
   functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["config/**"]
 
-# Friendlier URLs for the board to call
+# ---------------------------------------------------------------
+# API routes
+# Redirects are matched top to bottom — keep the most specific first.
+# ---------------------------------------------------------------
+
+# Live board data from the ServiceTitan Reporting API
 [[redirects]]
   from = "/api/feed"
   to = "/.netlify/functions/board-feed"
   status = 200
 
+# Report discovery (field + parameter names) — used when mapping a new report
 [[redirects]]
   from = "/api/report-meta"
   to = "/.netlify/functions/report-meta"
   status = 200
+
+# Roster config + tech photos, read by the board and written by admin.html
+[[redirects]]
+  from = "/api/config"
+  to = "/.netlify/functions/board-config"
+  status = 200
+
+# ---------------------------------------------------------------
+# Headers
+# ---------------------------------------------------------------
+
+# The TVs must never show a cached roster or a cached feed
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
+# Keep the board itself fresh so a deploy reaches the TVs on next load
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+    X-Robots-Tag = "noindex, nofollow"
+
+# Committed headshots can cache hard — filenames change when photos change
+[[headers]]
+  for = "/photos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
