@@ -1,0 +1,9 @@
+{
+  "name": "techrankingapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Omaha Drain division boards — TV leaderboard fed by the ServiceTitan Reporting API",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
