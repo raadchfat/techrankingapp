@@ -89,6 +89,7 @@
   .add-row{display:flex;gap:10px;margin-top:4px}
 
   /* ---------- Login ---------- */
+  [hidden]{display:none !important}   /* must outrank .gate's display:flex */
   .gate{
     position:fixed;inset:0;background:var(--bg);z-index:50;
     display:flex;align-items:center;justify-content:center;padding:22px;
@@ -370,8 +371,8 @@ async function load(){
   const res = await api({ action:"login" });
   techs = res.techs || [];
   sessionStorage.setItem("odAdminPw", pw);
-  $("gate").hidden = true;
-  $("app").hidden = false;
+  $("gate").hidden = true;  $("gate").style.display = "none";
+  $("app").hidden = false;  $("app").style.display = "block";
   setDirty(false);
   render();
 }
