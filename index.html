@@ -250,7 +250,7 @@ const PHOTOS = {
   "Jackson Field":   "photos/jackson.jpg",
   "Dylan Maet":      "photos/dylan.jpg",
   "David Solokhin":  "photos/david.jpg",
-  "Zachary Holman":  "photos/zach.jpg",
+  "Zachary Holman":  "photos/Zach.jpg",
   "Ryan Kenyon":     "photos/Ryan.jpg",
   "Diego Ramos":     "photos/diego.jpg"
 };
@@ -276,11 +276,16 @@ const FINE_PRINT = {
   install:      "<b>Install Revenue:</b> completed install revenue — goal $100K/mo&nbsp;·&nbsp;<b>Efficiency:</b> sold hours ÷ actual hours, capped at 100% (gray = no hours data) — goal 80%&nbsp;·&nbsp;<b>On Time:</b> arrivals within promised window — goal 80%",
   sales:        "<b>Total Sold:</b> total $ sold — goal $250K/mo &nbsp;·&nbsp; <b>Close:</b> closed ÷ opportunities — goal 50% &nbsp;·&nbsp; <b>Avg Sale:</b> sold $ ÷ closed — goal $8,000 &nbsp;·&nbsp; <b>On Time:</b> goal 80%"
 };
-/* LIVE FEED (optional): publish the "OD Board Feed" Google Sheet
-   to the web as Entire Document → Microsoft Excel (.xlsx) and
-   paste the link here. Leave "" for drag-and-drop only. */
-const FEED_URL     = "/api/feed";   // ServiceTitan Reporting API (Netlify function)
+/* LIVE FEED: ServiceTitan Reporting API via netlify/functions/board-feed.js */
+const FEED_URL     = "/api/feed";
 const FEED_MINUTES = 15;
+
+/* ROSTER: managed from admin.html, stored in Netlify Blobs via
+   netlify/functions/board-config.js. When this responds, it replaces the
+   EXCLUDE / FORCE_SHOW / ASSIGN / HOME_BOARD / ROLES / PHOTOS lists above.
+   Set to "" to go back to the hardcoded lists. */
+const CONFIG_URL     = "/api/config";
+const CONFIG_MINUTES = 15;
 /* ================================================================ */
 /* Preloaded fallback: scheduled report, Aug 3 – Aug 7, 2026 */
 const INITIAL_DATA = {"label":"Aug 3 – Aug 7, 2026","weeks":0.71,"days":5,"divisions":{"service":{"Steve Springer":{"revenue":13235.0,"jobs":11,"opps":10,"sales":29816.72,"closeRate":72.7,"estClose":62.5,"leads":8,"avgTicket":1203.18,"avgSale":2625.6,"onTime":86.7,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Jamison Gruber":{"revenue":11657.45,"jobs":11,"opps":11,"sales":32455.4,"closeRate":90.9,"estClose":72.7,"leads":7,"avgTicket":1059.77,"avgSale":4056.93,"onTime":75.0,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Brandon Tibbott":{"revenue":4777.0,"jobs":12,"opps":10,"sales":29627.13,"closeRate":83.3,"estClose":90.0,"leads":5,"avgTicket":398.08,"avgSale":3140.24,"onTime":83.3,"dailyGoal":2000.0,"eff":77.3,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"William Smith":{"revenue":1820.55,"jobs":12,"opps":11,"sales":3721.55,"closeRate":91.7,"estClose":80.0,"leads":9,"avgTicket":151.71,"avgSale":320.57,"onTime":84.2,"dailyGoal":2000.0,"eff":54.2,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Dylan Maet":{"revenue":1971.0,"jobs":2,"opps":2,"sales":0.0,"closeRate":50.0,"estClose":0.0,"leads":2,"avgTicket":985.5,"avgSale":0.0,"onTime":72.7,"dailyGoal":0.0,"eff":28.6,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Dalton Jones":{"revenue":0.0,"jobs":1,"opps":0,"sales":0.0,"closeRate":0.0,"estClose":0.0,"leads":0,"avgTicket":0.0,"avgSale":0.0,"onTime":0.0,"dailyGoal":2000.0,"eff":null,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null}},"sales":{"Cody Hobbs":{"revenue":0.0,"jobs":4,"opps":3,"sales":4375.0,"closeRate":75.0,"estClose":50.0,"leads":1,"avgTicket":0.0,"avgSale":4375.0,"onTime":100.0,"dailyGoal":2000.0,"eff":null,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null}},"install":{"Colton Bennett":{"revenue":38182.34,"jobs":2,"opps":2,"sales":0.0,"closeRate":100.0,"estClose":0.0,"leads":2,"avgTicket":19091.17,"avgSale":0.0,"onTime":0.0,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Manny Martinez":{"revenue":18860.0,"jobs":13,"opps":11,"sales":1897.0,"closeRate":46.2,"estClose":11.1,"leads":9,"avgTicket":1450.77,"avgSale":1289.0,"onTime":100.0,"dailyGoal":2000.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null},"Jackson Field":{"revenue":40104.16,"jobs":1,"opps":1,"sales":0.0,"closeRate":100.0,"estClose":0.0,"leads":0,"avgTicket":40104.16,"avgSale":0.0,"onTime":100.0,"dailyGoal":0.0,"eff":100,"sold":null,"zeroTicket":null,"hoursPerJob":null,"callbacks":null,"otWtd":null,"otMtd":null}}}};
@@ -738,6 +743,52 @@ async function fetchFeed(){
     $("uploadHint").textContent = "Feed Unreachable \u2014 Drop Export to Update";
   }
 }
+/* ---------------- roster from the admin portal ---------------- */
+const CFG_KEY = "odBoardRoster";
+
+function applyRoster(list){
+  if(!Array.isArray(list) || !list.length) return false;
+
+  EXCLUDE.length = 0;
+  FORCE_SHOW.length = 0;
+  for(const k in ASSIGN)     delete ASSIGN[k];
+  for(const k in HOME_BOARD) delete HOME_BOARD[k];
+  for(const k in ROLES)      delete ROLES[k];
+  for(const k in PHOTOS)     delete PHOTOS[k];
+
+  for(const t of list){
+    const name = String(t && t.name || "").trim();
+    if(!name) continue;
+    const board = String(t.board || "service").toLowerCase();
+    if(t.hidden){ EXCLUDE.push(name); continue; }
+    HOME_BOARD[name] = board;
+    if(t.pin)    ASSIGN[name] = board;
+    if(t.always) FORCE_SHOW.push(name);
+    if(t.role)   ROLES[name]  = t.role;
+    if(t.photo)  PHOTOS[name] = t.photo;
+  }
+  return true;
+}
+
+/* apply the last known roster instantly so a TV never waits on the network */
+try{
+  const cached = localStorage.getItem(CFG_KEY);
+  if(cached) applyRoster(JSON.parse(cached));
+}catch(e){}
+
+async function fetchRoster(){
+  if(!CONFIG_URL) return;
+  try{
+    const res  = await fetch(CONFIG_URL + (CONFIG_URL.includes("?") ? "&" : "?") + "cb=" + Date.now());
+    const data = await res.json();
+    if(data && data.ok && applyRoster(data.techs)){
+      try{ localStorage.setItem(CFG_KEY, JSON.stringify(data.techs)); }catch(e){}
+      render();
+    }
+  }catch(err){ /* keep whatever roster we already have */ }
+}
+if(CONFIG_URL){ fetchRoster(); setInterval(fetchRoster, CONFIG_MINUTES * 60 * 1000); }
+
 if(FEED_URL){ fetchFeed(); setInterval(fetchFeed, FEED_MINUTES * 60 * 1000); }
 let toastTimer;
 function toast(msg){
