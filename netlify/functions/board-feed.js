@@ -22,15 +22,7 @@ exports.handler = async (event) => {
   const debug = qs.debug === '1';
 
   try {
-    const meta = await getReportMeta(cfg.report.category, cfg.report.id);
-    const { parameters, notes } = buildParameters(meta, range);
-    const { rows, fields } = await getReportData(
-      cfg.report.category,
-      cfg.report.id,
-      parameters
-    );
-
-    const techs = rows.map(normalizeRow).filter(isRealTech).filter(notExcluded);
+    const { techs, rows, fields, parameters, notes } = await fetchTechs(dateRange(range));
 
     const boards = {};
     for (const key of cfg.boards.order) {
@@ -74,6 +66,25 @@ exports.handler = async (event) => {
   }
 };
 
+/**
+ * Run the report for an explicit { from, to } window and return the cleaned
+ * tech rows. Shared with winners.mjs, which calls it once per month.
+ */
+async function fetchTechs(period, meta) {
+  meta = meta || (await getReportMeta(cfg.report.category, cfg.report.id));
+  const { parameters, notes } = buildParameters(meta, period);
+  const { rows, fields } = await getReportData(
+    cfg.report.category,
+    cfg.report.id,
+    parameters
+  );
+  const techs = rows.map(normalizeRow).filter(isRealTech).filter(notExcluded);
+  return { techs, rows, fields, parameters, notes };
+}
+
+exports.fetchTechs = fetchTechs;
+exports.boardFor = boardFor;
+
 /* ---------------- parameter resolution ---------------- */
 
 /**
@@ -81,9 +92,8 @@ exports.handler = async (event) => {
  * and fill in what we recognize, rather than hardcoding names that will
  * silently break if the report is ever edited.
  */
-function buildParameters(meta, range) {
+function buildParameters(meta, { from, to }) {
   const defs = meta.parameters || [];
-  const { from, to } = dateRange(range);
   const notes = [];
   const parameters = [];
 

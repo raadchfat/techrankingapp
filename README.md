@@ -61,6 +61,18 @@ Names must match ServiceTitan exactly, including middle names.
 Note: the old scheduled export was running a rolling **week**, not MTD.
 This function computes the range explicitly, so the board now matches its header.
 
+## Monthly Winners slide
+
+The fourth slide in the rotation (`?unit=winners` to lock a TV to it) shows the
+#1 Service (revenue), Sales (total sold) and Install (revenue) tech for every
+month since `winners.startMonth` in `config/board-config.json`. The current
+month is labeled "Leading".
+
+Data comes from `/api/winners`, which runs the same report once per month and
+caches results in Netlify Blobs. Past months are re-pulled every 6 hours, so
+late adjustments still change the winner. To respect the rate limit, each call
+pulls at most 3 months, so a fresh deploy can take a minute or two to fill in.
+
 ## Notes
 
 - Tokens last 15 minutes and are cached in memory between invocations.

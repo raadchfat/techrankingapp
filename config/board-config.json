@@ -26,6 +26,11 @@
     "install": { "perTechMonthlyRevenue": 150000 },
     "sales": { "perTechMonthlyRevenue": 150000 }
   },
+  "winners": {
+    "_comment": "Monthly Winners slide: first month shown, and how many months to keep on screen.",
+    "startMonth": "2026-07",
+    "maxMonths": 12
+  },
   "rankBy": {
     "service": "pctToGoal",
     "install": "pctToGoal",

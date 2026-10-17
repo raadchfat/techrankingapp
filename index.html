@@ -133,6 +133,21 @@
     font-weight:700;font-size:2.2vh;z-index:60;opacity:0;transition:opacity .3s;pointer-events:none;
   }
   .toast.on{opacity:1}
+  /* ===== MONTHLY WINNERS slide ===== */
+  .winners{flex:1;display:grid;grid-template-columns:16vw repeat(3,1fr);gap:1vh 1vw;min-height:0;align-content:start}
+  .winners .wh{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:2.4vh;text-transform:uppercase;letter-spacing:.04em;align-self:end;padding:0 .4vw .3vh}
+  .winners .wh small{display:block;font-family:'Archivo',sans-serif;font-size:1.4vh;font-weight:700;color:var(--ink-dim);letter-spacing:.1em;margin-top:.3vh}
+  .winners .wm{display:flex;flex-direction:column;justify-content:center;padding:0 .4vw}
+  .winners .wm .mn{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:2.6vh;text-transform:uppercase;line-height:1.05}
+  .winners .wm .tag{margin-top:.6vh;align-self:flex-start;font-size:1.4vh;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:.3vh .6vw;border-radius:.7vh;background:var(--fill-n);color:var(--ink-n)}
+  .winners .wm .tag.live{background:var(--teal);color:#fff}
+  .winners .wc{flex-direction:row;align-items:center;gap:1vw;min-width:0;padding:1vh 1vw}
+  .winners .wc.cur{border-color:var(--teal)}
+  .winners .wc .avatar{height:100%;width:auto;aspect-ratio:1;min-height:0;font-size:3vh;object-position:50% 20%}
+  .winners .wc .wn{font-weight:800;font-size:2.3vh;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .winners .wc .wv{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:2.6vh;color:var(--ink-g);margin-top:.3vh}
+  .winners .wc.none{justify-content:center;color:var(--ink-n);font-weight:700;font-size:2vh}
+  .winners .wc > div{min-width:0}
   .empty{flex:1;display:flex;align-items:center;justify-content:center;font-size:3vh;color:var(--ink-dim);text-align:center;grid-column:1/-1}
 </style>
 </head>
@@ -141,7 +156,7 @@
   <header>
     <div>
       <div class="title" id="boardTitle">Service</div>
-      <div class="subtitle">Omaha Drain &nbsp;·&nbsp; <b id="rangeLabel">Jul 1 – Jul 21, 2026</b> vs Monthly Goals</div>
+      <div class="subtitle">Omaha Drain &nbsp;·&nbsp; <b id="rangeLabel">Jul 1 – Jul 21, 2026</b><span id="rangeSuffix"> vs Monthly Goals</span></div>
     </div>
     <div class="meta">
       <div class="clock" id="clock">7:49 PM</div>
@@ -152,9 +167,10 @@
     <div class="card featured" id="featured"></div>
     <div class="grid" id="grid"></div>
   </div>
+  <div class="winners" id="winners" style="display:none"></div>
   <div class="fineprint" id="finePrint"><b>Total Revenue:</b> completed job revenue incl. adjustments — goal $40K/mo&nbsp;·&nbsp;<b>Sales:</b> total $ sold on your jobs — goal $100K/mo&nbsp;·&nbsp;<b>Close:</b> converted jobs ÷ opportunities (Total Conversion Rate) — goal 70%&nbsp;·&nbsp;<b>Avg Ticket:</b> revenue ÷ completed jobs — goal $400&nbsp;·&nbsp;<b>On Time:</b> arrivals within promised window — goal 80%</div>
   <footer>
-    <div class="legend">
+    <div class="legend" id="legend">
       <div class="key"><div class="swatch g"></div>On Target</div>
       <div class="key"><div class="swatch r"></div>Below Target</div>
     </div>
@@ -269,11 +285,22 @@ const TARGETS = {
 TARGETS.servicesales = { sales: 150000, avgSale: 5000, close: 50, onTime: 80 };
 // Service · Sales slide: sold ≥ $150K/mo, avg sale ≥ $5K, close ≥ 50%, on-time ≥ 80%
 const CYCLE_SECONDS = 15;
+/* MONTHLY WINNERS slide: #1 of each month per division, from /api/winners.
+   Uses the same rank as the live slides (METRICS[div].rank), so the
+   current month's "Leading" cell always matches the #1 card on that board. */
+const WINNERS_URL     = "/api/winners";
+const WINNERS_MINUTES = 15;
+const WINNER_COLUMNS  = [
+  { div:"service",      title:"Service", label:"Revenue",    key:"revenue" },
+  { div:"servicesales", title:"Sales",   label:"Total Sold", key:"sales"   },
+  { div:"install",      title:"Install", label:"Revenue",    key:"revenue" }
+];
 /* Fine print shown under each board — edit freely */
 const FINE_PRINT = {
   service:      "<b>Total Revenue:</b> completed job revenue incl. adjustments — goal $40K/mo&nbsp;·&nbsp;<b>Sales:</b> total $ sold on your jobs — goal $100K/mo&nbsp;·&nbsp;<b>Close:</b> converted jobs ÷ opportunities (Total Conversion Rate) — goal 70%&nbsp;·&nbsp;<b>Avg Ticket:</b> revenue ÷ completed jobs — goal $400&nbsp;·&nbsp;<b>On Time:</b> arrivals within promised window — goal 80%",
   servicesales: "<b>Total Sold:</b> total $ sold — goal $150K/mo &nbsp;·&nbsp; <b>Avg Sale:</b> sold $ ÷ closed estimates — goal $5,000 &nbsp;·&nbsp; <b>Close:</b> closed estimates ÷ opportunities (Close Rate) — goal 50% &nbsp;·&nbsp; <b>On Time:</b> arrivals within promised window — goal 80%",
   install:      "<b>Install Revenue:</b> completed install revenue — goal $100K/mo&nbsp;·&nbsp;<b>Efficiency:</b> sold hours ÷ actual hours, capped at 100% (gray = no hours data) — goal 80%&nbsp;·&nbsp;<b>On Time:</b> arrivals within promised window — goal 80%",
+  winners:      "<b>Monthly Winners:</b> the #1 tech on each board for the month &nbsp;·&nbsp; <b>Service:</b> completed revenue incl. adjustments &nbsp;·&nbsp; <b>Sales:</b> total $ sold &nbsp;·&nbsp; <b>Install:</b> completed install revenue &nbsp;·&nbsp; the current month shows who is leading so far",
   sales:        "<b>Total Sold:</b> total $ sold — goal $250K/mo &nbsp;·&nbsp; <b>Close:</b> closed ÷ opportunities — goal 50% &nbsp;·&nbsp; <b>Avg Sale:</b> sold $ ÷ closed — goal $8,000 &nbsp;·&nbsp; <b>On Time:</b> goal 80%"
 };
 /* LIVE FEED: ServiceTitan Reporting API via netlify/functions/board-feed.js */
@@ -293,8 +320,8 @@ const INITIAL_DATA = {"label":"Aug 3 – Aug 7, 2026","weeks":0.71,"days":5,"div
 const params = new URLSearchParams(location.search);
 const lockedUnit = (params.get("unit") || "").toLowerCase();
 const UNITS = ["service","sales","install"];               // parser divisions (leave as-is)
-const ACTIVE_UNITS = ["service","servicesales","install"]; // boards shown on TVs — add "sales" back when the role is staffed
-const UNIT_TITLES = { service:"Service", servicesales:"Sales", sales:"Sales", install:"Install" };
+const ACTIVE_UNITS = ["service","servicesales","install","winners"]; // boards shown on TVs — add "sales" back when the role is staffed
+const UNIT_TITLES = { service:"Service", servicesales:"Sales", sales:"Sales", install:"Install", winners:"Monthly Winners" };
 let unitIndex = Math.max(0, ACTIVE_UNITS.indexOf(lockedUnit));
 let data = INITIAL_DATA;
 const STORE_KEY = "odTvBoardData";
@@ -412,15 +439,17 @@ const METRICS = {
   }
 };
 /* ---------------- render ---------------- */
-function assignedDivisions(){
+function assignedDivisions(src){
   /* apply ASSIGN overrides on top of home-BU placement */
+  const divisions = src || data.divisions;
   const out = { service:{}, sales:{}, install:{} };
   for(const div of UNITS){
-    for(const [name, t] of Object.entries(data.divisions[div] || {})){
+    for(const [name, t] of Object.entries(divisions[div] || {})){
       const dest = ASSIGN[name] || div;
       out[dest][name] = t;
     }
   }
+  if(src) return out;   // winners: no zero-activity placeholders
   for(const name of FORCE_SHOW){
     const dest = ASSIGN[name] || HOME_BOARD[name] || "service";
     const present = Object.values(out).some(d => d[name]);
@@ -497,15 +526,61 @@ function cardHTMLV2(t, rank, div, isFeat){
     ? head + '<div class="v2body">' + avatar + bar + tileGrid + strip + '</div>'
     : head + bar + '<div class="v2body">' + avatar + tileGrid + '</div>' + strip;
 }
+function avatarHTML(name){
+  return PHOTOS[name]
+    ? '<img class="avatar" src="' + esc(PHOTOS[name]) + '" alt="" decoding="async" data-ini="' + esc(initials(name)) + '" onerror="avatarFallback(this)">'
+    : '<div class="avatar">' + esc(initials(name)) + '</div>';
+}
+function winnerOf(divisions, col){
+  const M = METRICS[col.div];
+  const pool = col.div === "servicesales" ? "service" : col.div;
+  const top = Object.entries(assignedDivisions(divisions)[pool])
+    .filter(([name]) => !EXCLUDE.includes(name))
+    .map(([name,d]) => ({name, ...d}))
+    .sort((a,b) => M.rank(b) - M.rank(a))[0];
+  return top && top[col.key] > 0 ? top : null;
+}
+function renderWinners(){
+  const months = (winnersData && winnersData.months || []).slice().reverse(); // newest first
+  const first = months[months.length - 1];
+  $("rangeLabel").textContent = first ? first.label + " \u2013 Present" : "\u2014";
+  const el = $("winners");
+  if(!months.length){
+    el.innerHTML = '<div class="empty">Monthly winners are loading\u2026</div>';
+    return;
+  }
+  let html = '<div></div>' + WINNER_COLUMNS.map(c =>
+    '<div class="wh">' + c.title + '<small>' + c.label + '</small></div>').join("");
+  for(const m of months){
+    html += '<div class="wm"><div class="mn">' + esc(m.label) + '</div>' +
+      (m.current ? '<div class="tag live">Leading</div>' : '<div class="tag">Winner</div>') + '</div>';
+    for(const c of WINNER_COLUMNS){
+      const w = m.divisions ? winnerOf(m.divisions, c) : null;
+      html += w
+        ? '<div class="card wc' + (m.current ? " cur" : "") + '">' + avatarHTML(w.name) +
+            '<div><div class="wn">' + esc(w.name) + '</div><div class="wv">' + kFmt(w[c.key]) + '</div></div></div>'
+        : '<div class="card wc none">' + (m.divisions ? "No activity" : "Loading\u2026") + '</div>';
+    }
+  }
+  el.innerHTML = html;
+  /* rows share the height evenly, capped so a few months don't stretch into giant cards */
+  el.style.gridTemplateRows = "auto repeat(" + months.length + ", minmax(0, 17vh))";
+}
 function render(){
   const div = ACTIVE_UNITS[unitIndex];
   const M = METRICS[div];
+  const isWinners = div === "winners";
   $("boardTitle").textContent = UNIT_TITLES[div];
   $("rangeLabel").textContent = data.label || "—";
+  $("rangeSuffix").style.display = isWinners ? "none" : "";
+  $("legend").style.visibility = isWinners ? "hidden" : "";
   $("unitLabel").textContent = lockedUnit ? "" : "Rotating All Divisions";
   $("finePrint").innerHTML = FINE_PRINT[div] || "";
   $("dots").innerHTML = (lockedUnit || ACTIVE_UNITS.length < 2) ? "" :
     ACTIVE_UNITS.map((u,i) => '<div class="dot' + (i === unitIndex ? " active" : "") + '"></div>').join("");
+  document.querySelector(".boards").style.display = isWinners ? "none" : "";
+  $("winners").style.display = isWinners ? "" : "none";
+  if(isWinners){ renderWinners(); return; }
   const pool = div === "servicesales" ? "service" : div;
   const techs = Object.entries(assignedDivisions()[pool])
     .filter(([name]) => !EXCLUDE.includes(name))
@@ -790,6 +865,30 @@ async function fetchRoster(){
 if(CONFIG_URL){ fetchRoster(); setInterval(fetchRoster, CONFIG_MINUTES * 60 * 1000); }
 
 if(FEED_URL){ fetchFeed(); setInterval(fetchFeed, FEED_MINUTES * 60 * 1000); }
+
+/* ---------------- monthly winners ---------------- */
+const WINNERS_KEY = "odBoardWinners";
+let winnersData = null;
+try{
+  const cached = localStorage.getItem(WINNERS_KEY);
+  if(cached) winnersData = JSON.parse(cached);
+}catch(e){}
+let winnersRetry;
+async function fetchWinners(){
+  if(!WINNERS_URL) return;
+  clearTimeout(winnersRetry);
+  try{
+    const res = await fetch(WINNERS_URL + (WINNERS_URL.includes("?") ? "&" : "?") + "cb=" + Date.now());
+    const payload = await res.json();
+    if(!payload.ok) throw new Error(payload.error);
+    winnersData = payload;
+    try{ localStorage.setItem(WINNERS_KEY, JSON.stringify(payload)); }catch(e){}
+    if(ACTIVE_UNITS[unitIndex] === "winners") render();
+    /* first run pulls a few months per call (ServiceTitan rate limit) — come back for the rest */
+    if(payload.pending > 0) winnersRetry = setTimeout(fetchWinners, 90 * 1000);
+  }catch(err){ /* keep the last good copy */ }
+}
+if(WINNERS_URL){ fetchWinners(); setInterval(fetchWinners, WINNERS_MINUTES * 60 * 1000); }
 let toastTimer;
 function toast(msg){
   const t = $("toast");
