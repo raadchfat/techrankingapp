@@ -141,11 +141,17 @@
   .winners .wm .mn{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:2.6vh;text-transform:uppercase;line-height:1.05}
   .winners .wm .tag{margin-top:.6vh;align-self:flex-start;font-size:1.4vh;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:.3vh .6vw;border-radius:.7vh;background:var(--fill-n);color:var(--ink-n)}
   .winners .wm .tag.live{background:var(--teal);color:#fff}
-  .winners .wc{flex-direction:row;align-items:center;gap:1vw;min-width:0;padding:1vh 1vw}
-  .winners .wc.cur{border-color:var(--teal)}
-  .winners .wc .avatar{height:100%;width:auto;aspect-ratio:1;min-height:0;font-size:3vh;object-position:50% 20%}
-  .winners .wc .wn{font-weight:800;font-size:2.3vh;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .winners .wc .wv{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:2.6vh;color:var(--ink-g);margin-top:.3vh}
+  /* one color per column: --c accent, --cf card fill, --ci deep ink for the amount */
+  .winners .c-service{--c:#12A683;--cf:#E4F6EF;--ci:#0B6E4F}
+  .winners .c-sales{--c:#2F6FDE;--cf:#E7EEFC;--ci:#1E4FA6}
+  .winners .c-install{--c:#E08A1E;--cf:#FDF1E0;--ci:#9A5A08}
+  .winners .wh.c-service,.winners .wh.c-sales,.winners .wh.c-install{color:var(--c);border-bottom:.5vh solid var(--c);padding-bottom:.6vh}
+  .winners .wc{flex-direction:row;align-items:center;gap:1vw;min-width:0;padding:1vh 1vw;background:var(--cf);border:1px solid transparent;border-left:.7vh solid var(--c)}
+  .winners .wc.cur{border-color:var(--c);border-width:2px 2px 2px .7vh}
+  .winners .wc .avatar{height:100%;width:auto;aspect-ratio:1;min-height:0;border-radius:50%;border:.45vh solid var(--c);background-color:#fff;font-size:3vh;object-position:50% 20%}
+  .winners .wc div.avatar{background:var(--c)}
+  .winners .wc .wn{font-weight:800;font-size:2.3vh;text-transform:uppercase;line-height:1.1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .winners .wc .wv{font-family:'Archivo Expanded',sans-serif;font-weight:800;font-size:2.6vh;color:var(--ci);margin-top:.3vh}
   .winners .wc.none{justify-content:center;color:var(--ink-n);font-weight:700;font-size:2vh}
   .winners .wc > div{min-width:0}
   .empty{flex:1;display:flex;align-items:center;justify-content:center;font-size:3vh;color:var(--ink-dim);text-align:center;grid-column:1/-1}
@@ -550,16 +556,16 @@ function renderWinners(){
     return;
   }
   let html = '<div></div>' + WINNER_COLUMNS.map(c =>
-    '<div class="wh">' + c.title + '<small>' + c.label + '</small></div>').join("");
+    '<div class="wh c-' + c.title.toLowerCase() + '">' + c.title + '<small>' + c.label + '</small></div>').join("");
   for(const m of months){
     html += '<div class="wm"><div class="mn">' + esc(m.label) + '</div>' +
       (m.current ? '<div class="tag live">Leading</div>' : '<div class="tag">Winner</div>') + '</div>';
     for(const c of WINNER_COLUMNS){
       const w = m.divisions ? winnerOf(m.divisions, c) : null;
       html += w
-        ? '<div class="card wc' + (m.current ? " cur" : "") + '">' + avatarHTML(w.name) +
+        ? '<div class="card wc c-' + c.title.toLowerCase() + (m.current ? " cur" : "") + '">' + avatarHTML(w.name) +
             '<div><div class="wn">' + esc(w.name) + '</div><div class="wv">' + kFmt(w[c.key]) + '</div></div></div>'
-        : '<div class="card wc none">' + (m.divisions ? "No activity" : "Loading\u2026") + '</div>';
+        : '<div class="card wc none c-' + c.title.toLowerCase() + '">' + (m.divisions ? "No activity" : "Loading\u2026") + '</div>';
     }
   }
   el.innerHTML = html;

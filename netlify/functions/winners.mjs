@@ -118,6 +118,8 @@ export default async () => {
         cached[s.i] = entry;
       } catch (err) {
         errors.push(`${s.m}: ${err.message}`);
+        // Rate limited: stop here so we don't burn calls the live feed needs.
+        if (/\(429\)/.test(err.message)) break;
       }
     }
 
